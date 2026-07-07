@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Claude Mock — ContextBridge Test Fixture</title>
+</head>
+<body>
+  <main>
+    <div data-testid="conversation-content">
+
+      <!-- Human turn 1 -->
+      <div data-testid="human-turn" class="human-turn">
+        <div class="prose">
+          What are the benefits of using TypeScript over JavaScript?
+        </div>
+      </div>
+
+      <!-- AI turn 1 -->
+      <div data-testid="ai-turn" class="assistant-turn">
+        <div class="prose">
+          TypeScript adds static typing, better IDE support, and early error
+          detection. It compiles to JavaScript and is especially useful for
+          large codebases where type safety reduces runtime bugs significantly.
+        </div>
+      </div>
+
+      <!-- Human turn 2 -->
+      <div data-testid="human-turn" class="human-turn">
+        <div class="prose">
+          How do I configure strict mode in tsconfig.json?
+        </div>
+      </div>
+
+      <!-- AI turn 2 -->
+      <div data-testid="ai-turn" class="assistant-turn">
+        <div class="prose">
+          Set <code>"strict": true</code> in your compilerOptions. This enables
+          strictNullChecks, noImplicitAny, strictFunctionTypes, and other
+          safety rules all at once.
+        </div>
+      </div>
+
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ChatGPT Mock — ContextBridge Test Fixture</title>
+</head>
+<body>
+  <main>
+    <div class="flex flex-col">
+      <!-- Turn 1: User -->
+      <div
+        data-testid="conversation-turn-1"
+        data-message-author-role="user"
+      >
+        <div data-message-content="true">
+          How do I use async/await in Python?
+        </div>
+      </div>
+
+      <!-- Turn 2: Assistant -->
+      <div
+        data-testid="conversation-turn-2"
+        data-message-author-role="assistant"
+      >
+        <div class="markdown">
+          You use the <code>async def</code> syntax to define coroutines and
+          <code>await</code> to pause execution until a coroutine finishes.
+          Example: <code>async def fetch(): data = await get_data()</code>
+        </div>
+      </div>
+
+      <!-- Turn 3: User -->
+      <div
+        data-testid="conversation-turn-3"
+        data-message-author-role="user"
+      >
+        <div data-message-content="true">
+          Can you show me a real-world FastAPI example?
+        </div>
+      </div>
+
+      <!-- Turn 4: Assistant -->
+      <div
+        data-testid="conversation-turn-4"
+        data-message-author-role="assistant"
+      >
+        <div class="markdown">
+          Sure! In FastAPI you define route handlers as async functions:
+          <code>@app.get("/items") async def list_items(): return await db.all()</code>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

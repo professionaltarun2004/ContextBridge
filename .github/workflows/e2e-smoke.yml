@@ -1,0 +1,94 @@
+name: E2E Smoke Tests — Live LLM Interfaces
+
+on:
+  schedule:
+    # Runs every 6 hours (four times daily) — NFR-003
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: "Enable verbose debug output"
+        type: boolean
+        default: false
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: extension/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: extension
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+        working-directory: extension
+
+      - name: Run live smoke tests
+        id: playwright
+        run: npx playwright test tests/smoke
+        working-directory: extension
+        env:
+          CI: true
+
+      - name: Upload test artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-failure-report
+          path: |
+            extension/playwright-report/
+            extension/test-results/
+          retention-days: 7
+
+      - name: Notify Slack on failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
+          payload: |
+            {
+              "text": "🚨 *ContextBridge E2E Smoke Tests FAILED*",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "🚨 *ContextBridge E2E Smoke Tests FAILED*\n*Workflow:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>\n*Commit:* `${{ github.sha }}`\n*Branch:* `${{ github.ref_name }}`"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+      - name: Send email alert on failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.ALERT_EMAIL_USER }}
+          password: ${{ secrets.ALERT_EMAIL_PASSWORD }}
+          subject: "🚨 ContextBridge E2E Smoke Tests Failed"
+          to: ${{ secrets.ALERT_EMAIL_RECIPIENTS }}
+          from: "ContextBridge CI <${{ secrets.ALERT_EMAIL_USER }}>"
+          body: |
+            The ContextBridge E2E smoke tests have failed.
+
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            Commit: ${{ github.sha }}
+            Branch: ${{ github.ref_name }}
+
+            Please investigate immediately — target DOM selectors may have changed.

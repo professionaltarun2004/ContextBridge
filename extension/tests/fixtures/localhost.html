@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Localhost AI Mock — ContextBridge Test Fixture</title>
+</head>
+<body>
+  <div class="messages">
+
+    <!-- User message 1 -->
+    <div class="message" data-role="user">
+      <div class="message-content">
+        What model are you running locally?
+      </div>
+    </div>
+
+    <!-- Assistant message 1 -->
+    <div class="message" data-role="assistant">
+      <div class="message-content">
+        I am running Llama 3.1 8B through Ollama on your local machine.
+        No data is sent to external servers.
+      </div>
+    </div>
+
+    <!-- User message 2 -->
+    <div class="message" data-role="user">
+      <div class="message-content">
+        Can you help me write a Python function to sort a list of dicts?
+      </div>
+    </div>
+
+    <!-- Assistant message 2 -->
+    <div class="message" data-role="assistant">
+      <div class="message-content">
+        Sure! Use sorted() with a key: sorted(lst, key=lambda x: x['field'])
+        For descending order add reverse=True.
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

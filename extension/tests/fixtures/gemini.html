@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gemini Mock — ContextBridge Test Fixture</title>
+</head>
+<body>
+  <chat-history>
+
+    <!-- User query 1 -->
+    <user-query>
+      <div class="query-text">
+        Explain the difference between RAG and fine-tuning in LLMs.
+      </div>
+    </user-query>
+
+    <!-- Model response 1 -->
+    <model-response>
+      <message-content>
+        RAG (Retrieval-Augmented Generation) retrieves external documents at
+        inference time to ground responses in up-to-date facts. Fine-tuning
+        updates the model weights using domain-specific training data, making
+        it better at specific tasks but without real-time knowledge access.
+      </message-content>
+    </model-response>
+
+    <!-- User query 2 -->
+    <user-query>
+      <div class="query-text">
+        Which approach is better for a production Q&amp;A system?
+      </div>
+    </user-query>
+
+    <!-- Model response 2 -->
+    <model-response>
+      <message-content>
+        For a Q&amp;A system that needs up-to-date information, RAG is usually
+        preferred since you can update the document store without retraining.
+        Fine-tuning is better when you need specific linguistic or behavioral
+        patterns baked into the model.
+      </message-content>
+    </model-response>
+
+  </chat-history>
+</body>
+</html>
