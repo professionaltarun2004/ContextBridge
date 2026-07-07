@@ -1,14 +1,15 @@
 """
-Genesis Kit Provider Adapter
+Genesis Kit Provider Adapter (Driver)
 
 Responsible for parsing `.genesis/` project structures and converting
-them into agnostic ContextBridge Memory Objects.
+them into agnostic ContextBridge Memory Objects using the Kernel ABI.
 """
-import os
 import json
 from pathlib import Path
 from typing import Any
-from .base import BaseMemoryProvider, MemoryObject
+
+from app.providers.base import BaseMemoryProvider
+from app.kernel.memory import MemoryObject, MemoryType
 
 class GenesisAdapter(BaseMemoryProvider):
     def __init__(self, repo_path: str):
@@ -56,26 +57,29 @@ class GenesisAdapter(BaseMemoryProvider):
         
         if "plan" in raw_state:
             objects.append(MemoryObject(
-                source_id="genesis:plan",
-                provider_name=self.provider_name,
-                content=f"Project Plan & Milestones:\n{raw_state['plan']}",
-                metadata={"type": "milestone_tracker"}
+                type=MemoryType.GOAL,
+                title="Project Plan & Milestones",
+                content=raw_state["plan"],
+                source="genesis://PLAN.md",
+                importance=0.9
             ))
 
         if "current" in raw_state:
             objects.append(MemoryObject(
-                source_id="genesis:current",
-                provider_name=self.provider_name,
-                content=f"Current Sprint & State:\n{raw_state['current']}",
-                metadata={"type": "current_state"}
+                type=MemoryType.CHECKPOINT,
+                title="Current Sprint State",
+                content=raw_state["current"],
+                source="genesis://CURRENT.md",
+                freshness=1.0,
+                importance=1.0
             ))
 
         if "graph" in raw_state:
             objects.append(MemoryObject(
-                source_id="genesis:graph",
-                provider_name=self.provider_name,
+                type=MemoryType.ARCHITECTURE,
+                title="Genesis Knowledge Graph",
                 content=json.dumps(raw_state["graph"]),
-                metadata={"type": "knowledge_graph"}
+                source="genesis://context-graph.json"
             ))
 
         return objects

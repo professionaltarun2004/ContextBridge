@@ -15,10 +15,9 @@ from collections.abc import AsyncIterator
 import redis.asyncio as aioredis
 from typing import Any, Callable, cast
 from litellm import acompletion as _acompletion  # type: ignore[import-untyped]
+from app.config import settings
 
 acompletion = cast(Callable[..., Any], _acompletion)
-
-from app.config import settings
 
 logger = logging.getLogger(__name__)
 
