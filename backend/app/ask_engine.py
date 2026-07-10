@@ -96,7 +96,7 @@ async def traverse_and_answer(question: str) -> dict[str, Any]:
 
     try:
         response = await acompletion(
-            model="gemini/gemini-1.5-flash",
+            model="gemini/gemini-pro",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
             max_tokens=400,
