@@ -51,12 +51,6 @@ export default function App() {
           </button>
         ))}
 
-        {/* Mock mode indicator */}
-        <div style={{ marginTop: 'auto', padding: '16px 20px', borderTop: '1px solid var(--border)' }}>
-          <div className="badge badge-amber" style={{ width: '100%', justifyContent: 'center' }}>
-            ⚡ MOCK MODE
-          </div>
-        </div>
       </nav>
 
       {/* Main Content */}
