@@ -57,22 +57,22 @@ MOCK_EXTRACTION: dict[str, Any] = {
 
 AGENT_PROMPTS = {
     "decision": """You are a Decision Extractor. Analyze the following AI conversation and extract ALL architectural decisions, technology choices, and technical directions. Return a JSON array:
-[{"text": "...", "rationale": "...", "confidence": 0.0-1.0}]
+[{{ "text": "...", "rationale": "...", "confidence": 0.0-1.0 }}]
 Conversation:
 {transcript}""",
 
     "task": """You are a Task Extractor. Analyze the following AI conversation and extract ALL action items, features to build, and pending work. Return a JSON array:
-[{"text": "...", "status": "pending|in_progress|done", "confidence": 0.0-1.0}]
+[{{ "text": "...", "status": "pending|in_progress|done", "confidence": 0.0-1.0 }}]
 Conversation:
 {transcript}""",
 
     "entity": """You are an Entity Extractor. Analyze the following AI conversation and extract ALL technologies, APIs, libraries, systems, and file names mentioned. Return a JSON array:
-[{"name": "...", "type": "Library|API|Database|Service|File", "confidence": 0.0-1.0}]
+[{{ "name": "...", "type": "Library|API|Database|Service|File", "confidence": 0.0-1.0 }}]
 Conversation:
 {transcript}""",
 
     "constraint": """You are a Constraint Extractor. Analyze the following AI conversation and extract ALL technical constraints, limits, styling rules, and non-negotiable parameters. Return a JSON array:
-[{"text": "...", "confidence": 0.0-1.0}]
+[{{ "text": "...", "confidence": 0.0-1.0 }}]
 Conversation:
 {transcript}""",
 }
