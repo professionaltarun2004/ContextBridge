@@ -130,13 +130,33 @@ async def compile_pack(
     memory = await _fetch_project_memory(conversation_id)
     template_sections = PACK_TEMPLATES.get(role_pack, ["architecture", "constraints"])
 
-    # Filter to only sections explicitly selected by the user
-    active_sections = [s for s in template_sections if selections.get(s, True)]
+    if role_pack == "backend":
+        import os
+        template_path = os.path.join(os.path.dirname(__file__), "../../docs/specs/ULTIMATE_CONTEXT_PACK.md")
+        try:
+            with open(template_path, encoding="utf-8") as f:
+                content = f.read()
+        except Exception:
+            content = "# ContextOS Backend Context Pack\n\nTemplate not found."
 
-    files: dict[str, str] = {}
-    for section in active_sections:
-        filename = f"{section.replace('_', '-').title()}.md"
-        files[filename] = _compile_section(section, memory)
+        # Dynamically append Neo4j graph data
+        content += "\n\n====================================================\n"
+        content += "DYNAMIC NEO4J CONTEXT\n"
+        content += "====================================================\n\n"
+        
+        content += _compile_section("architecture", memory) + "\n\n"
+        content += _compile_section("apis", memory) + "\n\n"
+        content += _compile_section("constraints", memory) + "\n\n"
+        content += _compile_section("current_progress", memory) + "\n\n"
+
+        files = {"Ultimate-Context-Pack.md": content}
+    else:
+        # Filter to only sections explicitly selected by the user for other roles
+        active_sections = [s for s in template_sections if selections.get(s, True)]
+        files: dict[str, str] = {}
+        for section in active_sections:
+            filename = f"{section.replace('_', '-').title()}.md"
+            files[filename] = _compile_section(section, memory)
 
     pack_id = f"pack_{uuid.uuid4().hex[:8]}"
 
