@@ -126,13 +126,53 @@ function renderBadge(
     badge.style.boxShadow = "0 4px 16px rgba(99, 102, 241, 0.4)";
   });
 
-  badge.addEventListener("click", () => {
-    onInject(summaryText);
+  badge.addEventListener("click", async () => {
     // Pulse animation on click
     badge.style.transform = "scale(0.95)";
     setTimeout(() => {
       badge.style.transform = "scale(1)";
     }, 150);
+
+    const span = badge.querySelector("span");
+    if (span) span.innerText = "Compiling Pack...";
+
+    try {
+      // 1. Check for available packs (as required)
+      await fetch("http://localhost:8000/api/v1/packs");
+
+      // 2. Pull the actual compiled payload
+      const compileRes = await fetch("http://localhost:8000/api/v1/compile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversation_id: "conv_mock_001",
+          role_pack: "backend",
+          selections: { architecture: true, apis: true, database: true, constraints: true }
+        })
+      });
+      
+      const compileData = await compileRes.json();
+      
+      let textToInject = "";
+      if (compileData && compileData.files) {
+        textToInject = Object.entries(compileData.files)
+          .map(([name, content]) => `## ${name}\n\n${content as string}`)
+          .join('\n\n---\n\n');
+      } else {
+        textToInject = summaryText; // Fallback
+      }
+
+      onInject(textToInject);
+      if (span) span.innerText = "Injected ✓";
+      setTimeout(() => removeBadge(), 2000);
+
+    } catch (e) {
+      console.error("ContextOS fetch failed:", e);
+      // Fallback to local context cache if backend is unreachable
+      onInject(summaryText);
+      if (span) span.innerText = "Injected ✓ (Offline)";
+      setTimeout(() => removeBadge(), 2000);
+    }
   });
 
   container.appendChild(badge);

@@ -1,8 +1,8 @@
 """
-ContextBridge Backend — Application Settings
-Validates all required environment variables at startup using Pydantic Settings.
-Missing required variables cause an immediate startup failure with a descriptive error.
+ContextOS Backend — Application Settings
+All credentials loaded from environment variables.
 """
+from __future__ import annotations
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -17,81 +17,32 @@ class Settings(BaseSettings):
     )
 
     # -------------------------------------------------------------------------
-    # Database
+    # Neo4j AuraDB
     # -------------------------------------------------------------------------
-    DATABASE_URL: str = Field(
-        ...,
-        description="PostgreSQL connection string (asyncpg format). "
-        "Example: postgresql+asyncpg://user:pass@localhost:5432/contextbridge",
-    )
+    NEO4J_URI: str = Field(..., description="Bolt URI for Neo4j AuraDB instance.")
+    NEO4J_USERNAME: str = Field(default="neo4j", description="Neo4j auth username.")
+    NEO4J_PASSWORD: str = Field(..., description="Neo4j auth password.")
 
     # -------------------------------------------------------------------------
-    # Auth0
+    # LLM Providers (via LiteLLM)
     # -------------------------------------------------------------------------
-    AUTH0_DOMAIN: str = Field(
-        ...,
-        description="Auth0 tenant domain. Example: your-tenant.us.auth0.com",
-    )
-    AUTH0_AUDIENCE: str = Field(
-        ...,
-        description="Auth0 API audience identifier.",
-    )
-
-    # -------------------------------------------------------------------------
-    # Stripe
-    # -------------------------------------------------------------------------
-    STRIPE_SECRET_KEY: str = Field(
-        ...,
-        description="Stripe secret API key.",
-    )
-    STRIPE_WEBHOOK_SECRET: str = Field(
-        ...,
-        description="Stripe webhook signing secret for payload verification.",
-    )
-
-    # -------------------------------------------------------------------------
-    # LLM Providers
-    # -------------------------------------------------------------------------
-    OPENAI_API_KEY: str = Field(
-        ...,
-        description="OpenAI API key for summarization and embeddings.",
-    )
-    ANTHROPIC_API_KEY: str = Field(
-        ...,
-        description="Anthropic API key for Claude summarization preset.",
-    )
-
-    # -------------------------------------------------------------------------
-    # Redis
-    # -------------------------------------------------------------------------
-    REDIS_URL: str = Field(
-        default="redis://localhost:6379/0",
-        description="Redis connection URL for summarization cache.",
-    )
-
-    # -------------------------------------------------------------------------
-    # Sentry
-    # -------------------------------------------------------------------------
-    SENTRY_DSN: str | None = Field(
-        default=None,
-        description="Sentry DSN for error collection. Optional.",
-    )
+    OPENAI_API_KEY: str = Field(default="sk-dummy", description="OpenAI API key.")
+    GEMINI_API_KEY: str = Field(default="dummy", description="Google Gemini API key.")
+    OPENROUTER_API_KEY: str = Field(default="", description="OpenRouter API key.")
 
     # -------------------------------------------------------------------------
     # Application
     # -------------------------------------------------------------------------
-    APP_ENV: str = Field(
-        default="development",
-        description="Application environment: development | staging | production",
+    APP_ENV: str = Field(default="development")
+    MOCK_MODE: bool = Field(
+        default=False,
+        description="When True, bypasses live LLM and Neo4j calls for demo presentations.",
     )
     CORS_ORIGINS: list[str] = Field(
-        default=["chrome-extension://*"],
+        default=["*"],
         description="Allowed CORS origins.",
     )
-    LOG_LEVEL: str = Field(
-        default="INFO",
-        description="Application log level.",
-    )
+    LOG_LEVEL: str = Field(default="INFO")
 
 
 settings = Settings()  # type: ignore[call-arg]

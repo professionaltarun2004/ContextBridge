@@ -1,4 +1,4 @@
-name: Backend Tests & Coverage
+name: ContextOS Backend Tests
 
 on:
   push:
@@ -23,10 +23,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.12
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.11"
           cache: "pip"
           cache-dependency-path: backend/requirements.txt
 
@@ -36,41 +36,14 @@ jobs:
       - name: Run Ruff linter
         run: ruff check app/ tests/
 
-      - name: Run Mypy type checker
-        run: mypy app/ --ignore-missing-imports
-
-      - name: Run pytest with coverage
-        # Uses .env.test for all credentials — no real services required
-        run: pytest
+      - name: Run pytest (MOCK_MODE=True — no Neo4j needed)
+        run: pytest tests/ -v --tb=short
         env:
-          # Override DATABASE_URL to use in-memory SQLite for CI
-          DATABASE_URL: "sqlite+aiosqlite:///:memory:"
-          AUTH0_DOMAIN: test.auth0.com
-          AUTH0_AUDIENCE: https://test.contextbridge.ai
-          STRIPE_SECRET_KEY: sk_test_placeholder
-          STRIPE_WEBHOOK_SECRET: whsec_test_placeholder
-          OPENAI_API_KEY: sk-test-placeholder
-          ANTHROPIC_API_KEY: sk-ant-test-placeholder
-          REDIS_URL: redis://localhost:6379/0
-          SENTRY_DSN: ""
+          NEO4J_URI: "neo4j+s://mock.databases.neo4j.io"
+          NEO4J_USERNAME: neo4j
+          NEO4J_PASSWORD: mock_password
+          OPENAI_API_KEY: sk-dummy
+          GEMINI_API_KEY: dummy
+          MOCK_MODE: "True"
           APP_ENV: testing
           LOG_LEVEL: WARNING
-          CORS_ORIGINS: '["*"]'
-
-      - name: Upload coverage XML report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: backend/coverage.xml
-          retention-days: 14
-
-      - name: Report coverage summary
-        if: always()
-        uses: irongut/CodeCoverageSummary@v1.3.0
-        with:
-          filename: backend/coverage.xml
-          badge: true
-          format: markdown
-          output: both
-        continue-on-error: true

@@ -1,38 +1,53 @@
 """
-Async SQLAlchemy database engine and session factory.
-Uses asyncpg driver for non-blocking PostgreSQL I/O within FastAPI.
+Neo4j AuraDB Connection Driver.
+Manages the async bolt connection pool for the ContextOS graph engine.
 """
+from __future__ import annotations
 
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+import logging
+from contextlib import asynccontextmanager
+from collections.abc import AsyncGenerator
+
+from neo4j import AsyncGraphDatabase, AsyncDriver
 
 from app.config import settings
 
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=settings.APP_ENV == "development",
-    pool_size=10,
-    max_overflow=20,
-    pool_pre_ping=True,  # Detect stale connections
-    pool_recycle=3600,   # Recycle connections after 1 hour
-)
+logger = logging.getLogger(__name__)
 
-AsyncSessionLocal = async_sessionmaker(
-    bind=engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-    autoflush=False,
-)
+_driver: AsyncDriver | None = None
 
 
-async def get_db() -> AsyncSession:  # type: ignore[return]
-    """
-    FastAPI dependency that yields a database session.
-    Automatically commits on success or rolls back on exception.
-    """
-    async with AsyncSessionLocal() as session:
-        try:
-            yield session
-            await session.commit()
-        except Exception:
-            await session.rollback()
-            raise
+def get_driver() -> AsyncDriver:
+    """Returns the shared AsyncDriver instance."""
+    if _driver is None:
+        raise RuntimeError("Neo4j driver not initialized. Call init_driver() first.")
+    return _driver
+
+
+async def init_driver() -> None:
+    """Creates the shared Neo4j AsyncDriver at application startup."""
+    global _driver
+    _driver = AsyncGraphDatabase.driver(
+        settings.NEO4J_URI,
+        auth=(settings.NEO4J_USERNAME, settings.NEO4J_PASSWORD),
+    )
+    # Verify connectivity
+    await _driver.verify_connectivity()
+    logger.info("Neo4j AuraDB connection established.")
+
+
+async def close_driver() -> None:
+    """Closes the shared driver at application shutdown."""
+    global _driver
+    if _driver is not None:
+        await _driver.close()
+        _driver = None
+        logger.info("Neo4j driver closed.")
+
+
+@asynccontextmanager
+async def get_session() -> AsyncGenerator:
+    """Async context manager yielding a Neo4j session."""
+    driver = get_driver()
+    async with driver.session() as session:
+        yield session
