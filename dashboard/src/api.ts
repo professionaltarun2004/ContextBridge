@@ -1,7 +1,7 @@
 // ContextOS Dashboard — API Client
 // Communicates with the FastAPI backend
 
-const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
+const BASE = import.meta.env.VITE_API_URL ?? 'https://contextbridge-qvxc.onrender.com';
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {

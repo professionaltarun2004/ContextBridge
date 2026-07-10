@@ -138,10 +138,10 @@ function renderBadge(
 
     try {
       // 1. Check for available packs (as required)
-      await fetch("http://localhost:8000/api/v1/packs");
+      await fetch("https://contextbridge-qvxc.onrender.com/api/v1/packs");
 
       // 2. Pull the actual compiled payload
-      const compileRes = await fetch("http://localhost:8000/api/v1/compile", {
+      const compileRes = await fetch("https://contextbridge-qvxc.onrender.com/api/v1/compile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
