@@ -37,31 +37,19 @@ async def _fetch_project_memory(conversation_id: str) -> dict[str, Any]:
 
     async with get_session() as session:
         # Fetch decisions
-        result = await session.run(
-            "MATCH (c:Conversation {id: $id})-[:MADE_DECISION]->(d:Decision) RETURN d",
-            id=conversation_id,
-        )
+        result = await session.run("MATCH (c:Conversation)-[:MADE_DECISION]->(d:Decision) RETURN d")
         memory["decisions"] = [record["d"] async for record in result]
 
         # Fetch tasks
-        result = await session.run(
-            "MATCH (c:Conversation {id: $id})-[:GENERATES]->(t:Task) RETURN t",
-            id=conversation_id,
-        )
+        result = await session.run("MATCH (c:Conversation)-[:GENERATES]->(t:Task) RETURN t")
         memory["tasks"] = [record["t"] async for record in result]
 
         # Fetch entities
-        result = await session.run(
-            "MATCH (c:Conversation {id: $id})-[:MENTIONS]->(e:Entity) RETURN e",
-            id=conversation_id,
-        )
+        result = await session.run("MATCH (c:Conversation)-[:MENTIONS]->(e:Entity) RETURN e")
         memory["entities"] = [record["e"] async for record in result]
 
         # Fetch constraints
-        result = await session.run(
-            "MATCH (c:Conversation {id: $id})-[:HAS_CONSTRAINT]->(con:Constraint) RETURN con",
-            id=conversation_id,
-        )
+        result = await session.run("MATCH (c:Conversation)-[:HAS_CONSTRAINT]->(con:Constraint) RETURN con")
         memory["constraints"] = [record["con"] async for record in result]
 
     return memory
