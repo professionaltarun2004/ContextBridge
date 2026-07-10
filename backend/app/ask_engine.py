@@ -96,11 +96,11 @@ async def traverse_and_answer(question: str) -> dict[str, Any]:
 
     try:
         response = await acompletion(
-            model="gemini/gemini-pro",
+            model="openrouter/openai/gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
             max_tokens=400,
-            api_key=settings.GEMINI_API_KEY,
+            api_key=settings.OPENROUTER_API_KEY,
         )
         answer = response.choices[0].message.content or "Unable to synthesize answer."
     except Exception as exc:
