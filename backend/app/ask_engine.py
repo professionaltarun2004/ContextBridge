@@ -5,8 +5,8 @@ Natural language question answering over the Neo4j Knowledge Graph.
 from __future__ import annotations
 
 import logging
-from typing import Any
-from typing import cast, Callable
+from collections.abc import Callable
+from typing import Any, cast
 
 from litellm import acompletion as _acompletion  # type: ignore[import-untyped]
 
@@ -96,11 +96,11 @@ async def traverse_and_answer(question: str) -> dict[str, Any]:
 
     try:
         response = await acompletion(
-            model="openrouter/openai/gpt-4o-mini",
+            model="gemini/gemini-1.5-flash",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
             max_tokens=400,
-            api_key=settings.OPENROUTER_API_KEY,
+            api_key=settings.GEMINI_API_KEY,
         )
         answer = response.choices[0].message.content or "Unable to synthesize answer."
     except Exception as exc:

@@ -83,11 +83,11 @@ async def _run_agent(agent_type: str, transcript: str) -> list[dict[str, Any]]:
     prompt = AGENT_PROMPTS[agent_type].format(transcript=transcript)
     try:
         response = await acompletion(  # type: ignore[misc]
-            model="openrouter/openai/gpt-4o-mini",
+            model="gemini/gemini-1.5-flash",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.1,
             max_tokens=1000,
-            api_key=settings.OPENROUTER_API_KEY,
+            api_key=settings.GEMINI_API_KEY,
             response_format={"type": "json_object"},
         )
         import json
