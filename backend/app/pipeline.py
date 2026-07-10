@@ -125,7 +125,7 @@ async def _write_graph(
     rels = 0
 
     # Create Conversation node
-    await session.run(
+    res_c = await session.run(
         """
         MERGE (c:Conversation {id: $id})
         SET c.platform = $platform,
@@ -136,13 +136,14 @@ async def _write_graph(
         platform=platform,
         url=url,
     )
+    await res_c.consume()
     nodes += 1
 
     # Write decisions
     for i, decision in enumerate(extraction.get("decisions", [])):
         did = f"dec_{conversation_id}_{i}"
         source_msg = messages[i % len(messages)]["id"] if messages else "msg_0"
-        await session.run(
+        res_d = await session.run(
             """
             MERGE (d:Decision {id: $id})
             SET d.text = $text,
@@ -159,6 +160,7 @@ async def _write_graph(
             confidence=decision.get("confidence", 0.5), source_msg=source_msg,
             platform=platform, conv_id=conversation_id,
         )
+        await res_d.consume()
         nodes += 1
         rels += 1
 
@@ -166,7 +168,7 @@ async def _write_graph(
     for i, task in enumerate(extraction.get("tasks", [])):
         tid = f"task_{conversation_id}_{i}"
         source_msg = messages[i % len(messages)]["id"] if messages else "msg_0"
-        await session.run(
+        res_t = await session.run(
             """
             MERGE (t:Task {id: $id})
             SET t.text = $text,
@@ -183,6 +185,7 @@ async def _write_graph(
             confidence=task.get("confidence", 0.5), source_msg=source_msg,
             platform=platform, conv_id=conversation_id,
         )
+        await res_t.consume()
         nodes += 1
         rels += 1
 
@@ -190,7 +193,7 @@ async def _write_graph(
     for i, entity in enumerate(extraction.get("entities", [])):
         eid = f"ent_{conversation_id}_{i}"
         source_msg = messages[0]["id"] if messages else "msg_0"
-        await session.run(
+        res_e = await session.run(
             """
             MERGE (e:Entity {id: $id})
             SET e.name = $name,
@@ -207,6 +210,7 @@ async def _write_graph(
             confidence=entity.get("confidence", 0.5), source_msg=source_msg,
             platform=platform, conv_id=conversation_id,
         )
+        await res_e.consume()
         nodes += 1
         rels += 1
 
@@ -214,7 +218,7 @@ async def _write_graph(
     for i, constraint in enumerate(extraction.get("constraints", [])):
         cid = f"con_{conversation_id}_{i}"
         source_msg = messages[0]["id"] if messages else "msg_0"
-        await session.run(
+        res_con = await session.run(
             """
             MERGE (con:Constraint {id: $id})
             SET con.text = $text,
@@ -230,6 +234,7 @@ async def _write_graph(
             confidence=constraint.get("confidence", 0.5), source_msg=source_msg,
             platform=platform, conv_id=conversation_id,
         )
+        await res_con.consume()
         nodes += 1
         rels += 1
 
