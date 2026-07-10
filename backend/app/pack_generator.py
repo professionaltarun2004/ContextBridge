@@ -132,7 +132,7 @@ async def compile_pack(
 
     if role_pack == "backend":
         import os
-        template_path = os.path.join(os.path.dirname(__file__), "../../docs/specs/ULTIMATE_CONTEXT_PACK.md")
+        template_path = os.path.join(os.path.dirname(__file__), "templates", "ULTIMATE_CONTEXT_PACK.md")
         try:
             with open(template_path, encoding="utf-8") as f:
                 content = f.read()
