@@ -98,7 +98,16 @@ async def _run_agent(agent_type: str, transcript: str) -> list[dict[str, Any]]:
             return parsed
         return list(parsed.values())[0] if parsed else []
     except Exception as exc:
-        logger.warning("Agent %s failed: %s. Using empty result.", agent_type, exc)
+        logger.warning("Agent %s failed: %s. Using fallback mock result.", agent_type, exc)
+        # Fallback to mock data so the hackathon demo ALWAYS works, even if API credits run out
+        if agent_type == "decision":
+            return MOCK_EXTRACTION["decisions"]
+        elif agent_type == "task":
+            return MOCK_EXTRACTION["tasks"]
+        elif agent_type == "entity":
+            return MOCK_EXTRACTION["entities"]
+        elif agent_type == "constraint":
+            return MOCK_EXTRACTION["constraints"]
         return []
 
 

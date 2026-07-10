@@ -68,6 +68,11 @@ app.add_middleware(
 # Health
 # ---------------------------------------------------------------------------
 
+@app.get("/", tags=["Health"])
+async def root() -> dict[str, str]:
+    return {"message": "ContextOS API is running. Go to /openapi.json for docs."}
+
+
 @app.get("/health", tags=["Health"])
 async def health() -> dict:  # type: ignore[type-arg]
     return {"status": "healthy", "mock_mode": settings.MOCK_MODE, "version": "1.0.0"}
