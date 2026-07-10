@@ -5,10 +5,10 @@ Manages the async bolt connection pool for the ContextOS graph engine.
 from __future__ import annotations
 
 import logging
-from contextlib import asynccontextmanager
 from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
-from neo4j import AsyncGraphDatabase, AsyncDriver
+from neo4j import AsyncDriver, AsyncGraphDatabase
 
 from app.config import settings
 

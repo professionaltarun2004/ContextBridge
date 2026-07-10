@@ -4,11 +4,10 @@ ContextOS FastAPI Backend — All 6 REST endpoints (FR-010).
 from __future__ import annotations
 
 import logging
-import uuid
-from collections.abc import AsyncGenerator, AsyncIterator
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.ask_engine import traverse_and_answer

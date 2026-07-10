@@ -4,12 +4,12 @@ Compiles role-specific Context Packs from Neo4j Project Memory.
 """
 from __future__ import annotations
 
-import uuid
 import logging
+import uuid
 from typing import Any
 
-from app.database import get_session
 from app.config import settings
+from app.database import get_session
 
 logger = logging.getLogger(__name__)
 

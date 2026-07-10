@@ -8,8 +8,9 @@ import json
 from pathlib import Path
 from typing import Any
 
-from app.providers.base import BaseMemoryProvider
 from app.kernel.memory import MemoryObject, MemoryType
+from app.providers.base import BaseMemoryProvider
+
 
 class GenesisAdapter(BaseMemoryProvider):
     def __init__(self, repo_path: str):

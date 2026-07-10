@@ -5,8 +5,8 @@ Strict typed contracts for all 6 REST endpoints.
 from __future__ import annotations
 
 from typing import Any
-from pydantic import BaseModel, Field
 
+from pydantic import BaseModel, Field
 
 # ---------------------------------------------------------------------------
 # POST /api/v1/import
