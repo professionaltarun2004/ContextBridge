@@ -1,14 +1,16 @@
-# ContextBridge — SharedMemory AI
+# ContextOS — The Operating System for AI Work
 
 > **Frictionless AI context transfer. Switch between ChatGPT, Claude, Gemini, and local models without ever repeating yourself.**
 
-[![E2E Smoke Tests](https://github.com/your-org/contextbridge/actions/workflows/e2e-smoke.yml/badge.svg)](https://github.com/your-org/contextbridge/actions/workflows/e2e-smoke.yml)
+[![E2E Smoke Tests](https://github.com/professionaltarun2004/ContextBridge/actions/workflows/e2e-smoke.yml/badge.svg)](https://github.com/professionaltarun2004/ContextBridge/actions/workflows/e2e-smoke.yml)
 
 ---
 
 ## Overview
 
-ContextBridge is a cross-browser extension and SaaS backend that solves the **context fragmentation problem** for multi-LLM users. When you switch between AI assistants (due to rate limits, capability differences, or preference), your conversation history is automatically captured, sanitized, AI-summarized, and injected into your new session with a single click.
+ContextOS is a cross-browser extension, interactive web dashboard, and serverless Neo4j backend that solves the **context fragmentation problem** for multi-LLM users. 
+
+When you switch between AI assistants, your conversation history is automatically captured by the Chrome extension, broken down into a Knowledge Graph (Tasks, Decisions, Entities, Constraints), and compiled into an intelligent **Smart Context Pack** that any AI can instantly understand.
 
 ### Supported Platforms
 | Platform | Scraping | Injection |
@@ -16,25 +18,35 @@ ContextBridge is a cross-browser extension and SaaS backend that solves the **co
 | ChatGPT (chatgpt.com) | ✅ | ✅ |
 | Claude (claude.ai) | ✅ | ✅ |
 | Gemini (gemini.google.com) | ✅ | ✅ |
-| Local (Ollama, LM Studio, Open WebUI) | ✅ | ✅ |
+| Local (Ollama, LM Studio) | ✅ | ✅ |
 
 ---
 
-## Architecture
+## Architecture (Hackathon MVP)
 
 ```
 Browser Extension (TypeScript + React)
-├── Domain-Isolated Scrapers     → chatgpt.ts, claude.ts, gemini.ts, localhost.ts
-├── Context Injector             → injector.ts (< 300ms badge detection)
-├── Background Service Worker    → worker.ts (sync, tab events, offline fallback)
-└── Popup UI                     → App.tsx (export/import, blocklist, sync)
+├── Domain-Isolated Scrapers     → chatgpt.ts, claude.ts, gemini.ts
+├── Context Injector             → injector.ts
+└── Popup UI                     → App.tsx (Sync context to backend)
+
+Web Dashboard (React + Base44)
+├── Knowledge Graph Visualizer   → Renders the Neo4j Graph
+└── Context Pack Compiler        → Generates Ultimate-Context-Pack.md
 
 SaaS Backend (Python + FastAPI)
-├── POST /api/v1/sync            → Generate summary + store embeddings
-├── GET  /api/v1/context         → Semantic vector search (pgvector)
-├── POST /api/v1/telemetry/scraper-error → DOM failure alerts
-└── POST /api/v1/stripe/webhook  → Subscription lifecycle management
+├── POST /api/v1/import          → Multi-agent parallel graph extraction
+├── POST /api/v1/compile         → Traverses graph to build Context Packs
+└── GET  /api/v1/graph           → Fetches Neo4j edges and nodes
 ```
+
+---
+
+## Live Deployments
+
+- **Backend API**: `https://contextbridge-qvxc.onrender.com`
+- **Dashboard**: Hosted on Vercel
+- **Database**: Serverless Neo4j AuraDB
 
 ---
 
@@ -42,105 +54,57 @@ SaaS Backend (Python + FastAPI)
 
 ### Prerequisites
 - Node.js 22+
-- Python 3.12+
-- Docker & Docker Compose
+- Python 3.12+ (Only needed for local backend dev)
 
-### 1. Start Backend Services
-
-```bash
-# Copy and configure environment
-cp backend/.env.example backend/.env
-# Fill in AUTH0_DOMAIN, OPENAI_API_KEY, STRIPE keys, etc.
-
-# Start PostgreSQL + Redis + API
-docker-compose up --build
-
-# Run database migrations (first time)
-cd backend
-pip install -r requirements.txt
-alembic upgrade head
-```
-
-### 2. Build the Extension
+### 1. Build and Install the Chrome Extension
 
 ```bash
+# Enter the extension directory
 cd extension
+
+# Install dependencies and build
 npm install
 npm run build
 ```
 
-### 3. Load in Chrome/Edge
-
+**Load into Chrome:**
 1. Open `chrome://extensions/`
 2. Enable **Developer Mode**
-3. Click **Load unpacked** → Select `extension/dist/`
-4. The ContextBridge icon appears in your toolbar
+3. Click **Load unpacked** → Select the `extension/dist/` directory.
+
+### 2. Using the ContextBridge Flow
+1. **Capture**: Open Claude or ChatGPT, have a project conversation, open the Extension Popup, and click **"↑ Sync"**.
+2. **Compile**: Go to your Web Dashboard, navigate to **Context Packs**, and click **Compile**. Your entire conversation graph is converted into a ready-to-use Markdown file.
+3. **Bridge**: Open a new AI (e.g., ChatGPT), paste the Context Pack, and seamlessly continue your work!
 
 ---
 
-## Development
+## Local Development (Optional)
 
-### Backend Tests
+If you want to run the FastAPI backend locally:
+
 ```bash
 cd backend
+cp .env.example .env
+
+# Edit .env with your OPENROUTER_API_KEY and NEO4J credentials
 pip install -r requirements.txt
-pytest --cov=app --cov-fail-under=80
-```
 
-### Extension Typecheck
-```bash
-cd extension
-npm run typecheck
+# Run the local server
+uvicorn app.main:app --reload
 ```
-
-### Live E2E Smoke Tests (manual)
-```bash
-cd extension
-npx playwright test tests/smoke
-```
+*(Note: There is no PostgreSQL or Alembic setup required. The architecture is fully Neo4j-native.)*
 
 ---
 
-## Security
+## Security & PII
 
-- All sensitive state stored in `chrome.storage.local` (isolated sandbox)
-- JWT verification via Auth0 RS256 + JWKS
-- Stripe webhook signature validation on every event
-- Client-side PII redaction before any network transit
-- Server-side PII leak scan on incoming payloads
-- TLS 1.3 enforced for all API communication
-- Row-level security on all database queries (user_id isolation)
-- Raw conversation history purged after 24 hours
-
----
-
-## Configuration
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `DATABASE_URL` | ✅ | PostgreSQL asyncpg connection string |
-| `AUTH0_DOMAIN` | ✅ | Auth0 tenant domain |
-| `AUTH0_AUDIENCE` | ✅ | Auth0 API audience |
-| `STRIPE_SECRET_KEY` | ✅ | Stripe API key |
-| `STRIPE_WEBHOOK_SECRET` | ✅ | Stripe webhook signing secret |
-| `OPENAI_API_KEY` | ✅ | OpenAI API key (summarization + embeddings) |
-| `ANTHROPIC_API_KEY` | ✅ | Anthropic API key (Claude preset) |
-| `REDIS_URL` | — | Redis connection URL (default: `redis://localhost:6379/0`) |
-| `SENTRY_DSN` | — | Sentry error collection DSN |
-
----
-
-## Performance Targets
-
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Tab injection detection | < 300ms | rAF-based timing in injector.ts |
-| Summarization latency | < 1.5s overall / < 200ms TTFT | LiteLLM streaming with 1.4s timeout |
-| DOM smoke tests | Every 6 hours | GHA cron + Slack/email alerts |
-| Test coverage | ≥ 80% | pytest-cov on backend |
+- **Client-Side Redaction**: Passwords and PII are stripped before they leave the browser.
+- **Stateless Middlemen**: LiteLLM/OpenRouter agents process extraction strictly in-memory.
+- **Graph Isolation**: All memory nodes are stored securely in Neo4j AuraDB.
 
 ---
 
 ## License
 
-MIT © ContextBridge
+MIT © ContextOS (formerly ContextBridge)
