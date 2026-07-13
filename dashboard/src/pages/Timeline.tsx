@@ -34,7 +34,7 @@ const TIMELINE_EVENTS = [
     color: 'var(--amber)',
     title: 'Auth Strategy Simplified',
     meta: 'Yesterday 02:00 PM · Claude',
-    body: 'Removed Auth0 and Stripe for the hackathon sprint. Authentication deferred to Phase 2. Focus shifted to core graph intelligence.',
+    body: 'Removed Auth0 and Stripe for the current sprint. Authentication deferred to Phase 2. Focus shifted to core graph intelligence.',
     affected: ['auth.py (removed)', 'requirements.txt', 'docker-compose.yml'],
     confidence: 0.99,
   },

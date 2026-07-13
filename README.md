@@ -22,7 +22,7 @@ When you switch between AI assistants, your conversation history is automaticall
 
 ---
 
-## Architecture (Hackathon MVP)
+## System Architecture
 
 ```
 Browser Extension (TypeScript + React)
